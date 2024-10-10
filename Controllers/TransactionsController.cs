@@ -21,7 +21,7 @@ namespace blackbird_crm.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTransactions([FromQuery] string? searchQuery = null, [FromQuery] string? selectedClientId = null, [FromQuery] string? selectedProjectId = null)
+        public async Task<IActionResult> GetTransactions([FromQuery] int? projectId = null, [FromQuery] string? searchQuery = null)
         {
             var transactionsQuery = _context.Transactions
                 .Include(t => t.Client)
@@ -49,16 +49,11 @@ namespace blackbird_crm.Controllers
                 );
             }
 
-            if (!string.IsNullOrEmpty(selectedClientId) && int.TryParse(selectedClientId, out int clientId))
-            {
-                transactionsQuery = transactionsQuery.Where(t => t.ClientId == clientId);
-            }
-
-            if (!string.IsNullOrEmpty(selectedProjectId) && int.TryParse(selectedProjectId, out int projectId))
+            if (projectId is not null)
             {
                 transactionsQuery = transactionsQuery.Where(t => t.ProjectId == projectId);
             }
-
+            
             var transactions = await transactionsQuery.ToListAsync();
 
             return Ok(transactions);
